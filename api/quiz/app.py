@@ -8,6 +8,7 @@ def mkpath(p):
     )
 
 app=Flask(__name__)
+CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///"+mkpath("../db/quiz.db")
 app.config["SQLALCHEMY_ECHO"]=True
 
