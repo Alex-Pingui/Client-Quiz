@@ -7,6 +7,13 @@ export default {
     return {
       title: "Quiz",
       questionnaires: [],
+      newItem: "",
+      newQuestion: {
+        enonce: "",
+        reponse: "",
+        proposition_a: "",
+        proposition_b: ""
+      }
     }
   },
   async mounted() {
@@ -32,6 +39,52 @@ export default {
       } catch (error) {
         console.error("Erreur lors du chargement :", error.message);
       }
+    },
+    async addItem() {
+      if (!this.newItem.trim()) return;
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: this.newItem })
+        });
+        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`);
+        this.newItem = "";
+        await this.fetchData();
+      } catch (error) {
+        console.error("Erreur lors de l'ajout :", error.message);
+      }
+    },
+    async addQuestion(questionnaireId, enonce, reponse, proposition_a = null, proposition_b = null) {
+      try {
+        const body = { enonce, reponse };
+        if (proposition_a && proposition_b) {
+          body.proposition_a = proposition_a;
+          body.proposition_b = proposition_b;
+        }
+        const response = await fetch(`${API_URL}/questionnaires/${questionnaireId}/questions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`);
+        const data = await response.json();
+        return data.question;
+      } catch (error) {
+        console.error("Erreur lors de l'ajout de la question :", error.message);
+      }
+    },
+    async submitQuestion(questionnaireId) {
+      if (!this.newQuestion.enonce.trim() || !this.newQuestion.reponse.trim()) return;
+      await this.addQuestion(
+        questionnaireId,
+        this.newQuestion.enonce,
+        this.newQuestion.reponse,
+        this.newQuestion.proposition_a || null,
+        this.newQuestion.proposition_b || null
+      );
+      this.newQuestion = { enonce: "", reponse: "", proposition_a: "", proposition_b: "" };
+      await this.fetchData();
     }
   },
   components: { CreationQuestion }
@@ -39,29 +92,32 @@ export default {
 </script>
 
 <template>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
   <div class="container">
     <h2>{{ title }}</h2>
     <ol>
-      <li v-for="questionnaire in questionnaires">
+      <li v-for="questionnaire in questionnaires" :key="questionnaire.id">
         {{ questionnaire.name }}
         <div>
-          <ol>
-          <li v-for="question in questionnaire.questions" :key="question.id" :question="question"
-            @getAll="fetchData" @remove="fetchData" @modify="fetchData">
-            {{ question.enonce }}
-          </li>
-          </ol>
+          <CreationQuestion v-for="question in questionnaire.questions" :key="question.num_question"
+            :question="question" @getAll="fetchData" @remove="fetchData" @modify="fetchData" />
+        </div>
+        <div class="input-group mt-2">
+          <input v-model="newQuestion.enonce" placeholder="Énoncé" type="text" class="form-control">
+          <input v-model="newQuestion.reponse" placeholder="Réponse" type="text" class="form-control">
+          <input v-model="newQuestion.proposition_a" placeholder="Proposition A (optionnel)" type="text"
+            class="form-control">
+          <input v-model="newQuestion.proposition_b" placeholder="Proposition B (optionnel)" type="text"
+            class="form-control">
+          <button @click="submitQuestion(questionnaire.id)" class="btn btn-primary">Ajouter question</button>
         </div>
       </li>
     </ol>
-    <div class="input-group">
-      <input v-model="newItem" @keyup.enter="addItem" placeholder="Ajouter un questionnaire" type="text"
-        class="form-control">
-      <span class="input-group-btn">
-        <button @click="addItem" class="btn btn-default" type="button">Ajouter</button>
-      </span>
-    </div>
+  </div>
+  <div class="input-group">
+    <input v-model="newItem" @keyup.enter="addItem" placeholder="Ajouter un questionnaire" type="text"
+      class="form-control">
+    <span class="input-group-btn">
+      <button @click="addItem" class="btn btn-default" type="button">Ajouter</button>
+    </span>
   </div>
 </template>

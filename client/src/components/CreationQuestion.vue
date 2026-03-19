@@ -1,24 +1,32 @@
 <script>
 export default {
-    props: {
-        question: Object,
-        required: true
+  props: {
+    question: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    ajouter() {
+      this.$emit('add', { id: this.question.id });
     },
-    methods: {
-        getAll() {
-            this.$emit('getAll');
-        },
-        supprimer() {
-            this.$emit('remove',{id: this.question.id });
-        },
-        modifier() {
-            this.$emit('modify', this.question.id);
-        }
+    supprimer() {
+      this.$emit('remove', { id: this.question.id });
     },
-    emits: ["remove", "modify"]
+    modifier() {
+      this.$emit('modify', { id: this.question.id });
+    }
+  },
+  emits: ["add", "remove", "modify"]
 }
 </script>
 
 <template>
-    <div></div>
+    <div class="text">
+        <label>
+            {{ question.enonce }}
+        </label>
+        <!-- <input type="button" class="btn btn-warning" value="Modifier" @click="modifier">
+        <input type="button" class="btn btn-danger" value="Supprimer" @click="supprimer"> -->
+    </div>
 </template>
