@@ -34,13 +34,14 @@ class Questionnaire(db.Model):
     def __init__(self, nom):
         self.id_questionnaire = len(Questionnaire.all())+1
         self.nom = nom
+        self.uri = None
 
     @classmethod
     def all(cls):
         return db.session.query(Questionnaire).all()
 
     def to_json(self):
-        return {"id":self.id_questionnaire, "name":self.nom}
+        return {"name":self.nom, "uri":self.uri}
 
     def add_question(self, enonce, reponse, proposition_a=None, proposition_b=None):
         if proposition_a is None and proposition_b is None:
@@ -89,12 +90,21 @@ class Question(db.Model):
         "polymorphic_on": type, # Lecture de la colonne type en bd pour savoir à quelle classe correspond chaque ligne
     }
 
+    def __init__(self, id_questionnaire, num_question, enonce, reponse, proposition_a=None, proposition_b=None):
+        self.id_questionnaire=id_questionnaire
+        self.num_question=num_question
+        self.enonce=enonce
+        self.reponse=reponse
+        self.proposition_a=proposition_a
+        self.proposition_b=proposition_b
+        self.uri=None
+
     @classmethod
     def all(cls):
         return cls.query.all()
 
     def to_json(self):
-        return {"num_question":self.num_question, "enonce":self.enonce}
+        return {"num_question":self.num_question, "enonce":self.enonce, "reponse":self.reponse, "uri":self.uri}
 
 class QuestionOuverte(Question):
     __mapper_args__ = {
@@ -105,7 +115,7 @@ class QuestionOuverte(Question):
         super().__init__(id_questionnaire=id_questionnaire, num_question=num_question, enonce=enonce, reponse=reponse)
 
     def to_json(self):
-        return {"num_question": self.num_question, "enonce": self.enonce, "reponse": self.reponse}
+        return super().to_json()
 
 class QuestionFermee(Question):
     __mapper_args__ = {
@@ -116,4 +126,7 @@ class QuestionFermee(Question):
         super().__init__(id_questionnaire=id_questionnaire, num_question=num_question, enonce=enonce, reponse=reponse, proposition_a=proposition_a, proposition_b=proposition_b)
 
     def to_json(self):
-        return {"num_question": self.num_question, "enonce": self.enonce, "propositionA": self.proposition_a, "propositionB": self.proposition_b, "reponse": self.reponse}
+        json=super().to_json()
+        json["proposition_a"]=self.proposition_a
+        json["proposition_b"]=self.proposition_b
+        return json
