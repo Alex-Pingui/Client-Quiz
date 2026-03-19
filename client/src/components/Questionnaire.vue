@@ -2,6 +2,16 @@
 export default {
   props: {
     questionnaire: Object
+  },
+  data(){
+    return {
+      nomQuestionnaire: ""
+    };
+  },
+  methods:{
+    supprimerQuestionnaire(){
+      this.$emit("supprimerQuestionnaire", {id: this.questionnaire.id});
+    }
   }
 }
 </script>
@@ -15,7 +25,9 @@ export default {
     <div class="input-group">
       <input placeholder="Modifier le nom du questionnaire"
              type="text"
-             class="form-control">
+             class="form-control"
+             v-bind:value="nomQuestionnaire"
+      >
       <span class="input-group-btn">
       <button class="btn btn-default"
               type="button">Modifier
@@ -24,7 +36,9 @@ export default {
     </div>
     <input type="button"
            class="btn btn-danger"
-           value="Supprimer">
+           value="Supprimer"
+           @click="supprimerQuestionnaire"
+    >
   </li>
 </template>
 
