@@ -16,7 +16,7 @@ export default {
       this.$emit("modifierQuestionnaire", {id: this.questionnaire.id, nomQuestionnaire: this.nomQuestionnaire});
     }
   }
-}
+};
 </script>
 
 <template>

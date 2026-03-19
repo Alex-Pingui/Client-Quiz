@@ -1,8 +1,9 @@
 <script>
 import Questionnaire from "./components/Questionnaire.vue";
+import AjoutQuestionnaire from "./components/AjoutQuestionnaire.vue";
 
 export default {
-  components: {Questionnaire},
+  components: {AjoutQuestionnaire, Questionnaire},
   data(){
     return {
       title: "Quiz",
@@ -30,6 +31,18 @@ export default {
             if(result.status === 200) this.questionnaires.find(questionnaire => questionnaire.id===questionnaireId).name=nomQuestionnaire;
           }
       ).catch(error => console.log(error));
+    },
+    ajouterQuestionnaire(args){
+      let nomQuestionnaire=args.nomQuestionnaire;
+      let sent={"name":nomQuestionnaire};
+      let response=fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {headers: {"Content-Type": "application/json"}, method: "POST", body: JSON.stringify(sent)});
+      response.then(
+          result => result.json()
+      ).then(
+          result => {
+            this.questionnaires.push(result["questionnaire"]);
+          }
+      ).catch(error => console.log(error));
     }
   },
   mounted() {
@@ -42,7 +55,7 @@ export default {
         }
     ).catch(error => console.log(error));
   }
-}
+};
 </script>
 
 <template>
@@ -54,6 +67,7 @@ export default {
                    @modifierQuestionnaire="modifierQuestionnaire"
     />
   </ul>
+  <AjoutQuestionnaire @ajouterQuestionnaire="ajouterQuestionnaire"/>
 </template>
 
 <style scoped>
