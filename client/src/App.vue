@@ -16,9 +16,18 @@ export default {
       let response=fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}`, {headers: {"Content-Type": "application/json"}, method: "DELETE"});
       response.then(
           result => {
-            if(result.status === 200){
-              this.questionnaires.splice(this.questionnaires.findIndex(questionnaire => questionnaire.id===questionnaireId), 1);
-            }
+            if(result.status === 200) this.questionnaires.splice(this.questionnaires.findIndex(questionnaire => questionnaire.id===questionnaireId), 1);
+          }
+      ).catch(error => console.log(error));
+    },
+    modifierQuestionnaire(args){
+      let questionnaireId=args.id;
+      let nomQuestionnaire=args.nomQuestionnaire;
+      let sent={"name":nomQuestionnaire};
+      let response=fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}`, {headers: {"Content-Type": "application/json"}, method: "PUT", body: JSON.stringify(sent)});
+      response.then(
+          result => {
+            if(result.status === 200) this.questionnaires.find(questionnaire => questionnaire.id===questionnaireId).name=nomQuestionnaire;
           }
       ).catch(error => console.log(error));
     }
@@ -39,7 +48,11 @@ export default {
 <template>
   <h1>{{title}}</h1>
   <ul>
-    <Questionnaire :questionnaire="questionnaire" v-for="questionnaire in questionnaires" @supprimerQuestionnaire="supprimerQuestionnaire"/>
+    <Questionnaire :questionnaire="questionnaire"
+                   v-for="questionnaire in questionnaires"
+                   @supprimerQuestionnaire="supprimerQuestionnaire"
+                   @modifierQuestionnaire="modifierQuestionnaire"
+    />
   </ul>
 </template>
 

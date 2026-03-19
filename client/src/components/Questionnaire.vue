@@ -11,6 +11,9 @@ export default {
   methods:{
     supprimerQuestionnaire(){
       this.$emit("supprimerQuestionnaire", {id: this.questionnaire.id});
+    },
+    modifierQuestionnaire(){
+      this.$emit("modifierQuestionnaire", {id: this.questionnaire.id, nomQuestionnaire: this.nomQuestionnaire});
     }
   }
 }
@@ -26,11 +29,14 @@ export default {
       <input placeholder="Modifier le nom du questionnaire"
              type="text"
              class="form-control"
-             v-bind:value="nomQuestionnaire"
+             v-model="nomQuestionnaire"
       >
       <span class="input-group-btn">
       <button class="btn btn-default"
-              type="button">Modifier
+              type="button"
+              @click="modifierQuestionnaire"
+      >
+        Modifier
       </button>
     </span>
     </div>
