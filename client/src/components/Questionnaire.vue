@@ -10,10 +10,10 @@ export default {
   },
   methods:{
     supprimerQuestionnaire(){
-      this.$emit("supprimerQuestionnaire", {id: this.questionnaire.id});
+      this.$emit("supprimerQuestionnaire", {uri: this.questionnaire.uri});
     },
     modifierQuestionnaire(){
-      this.$emit("modifierQuestionnaire", {id: this.questionnaire.id, nomQuestionnaire: this.nomQuestionnaire});
+      this.$emit("modifierQuestionnaire", {uri: this.questionnaire.uri, nomQuestionnaire: this.nomQuestionnaire});
     }
   }
 };

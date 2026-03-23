@@ -32,13 +32,12 @@ class Questionnaire(db.Model):
     nom=db.Column(db.String)
 
     def __init__(self, nom):
-        self.id_questionnaire = len(Questionnaire.all())+1
         self.nom = nom
         self.uri = None
 
     @classmethod
     def all(cls):
-        return db.session.query(Questionnaire).all()
+        return cls.query.all()
 
     def to_json(self):
         return {"name":self.nom, "uri":self.uri}

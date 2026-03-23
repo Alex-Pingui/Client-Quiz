@@ -14,7 +14,6 @@ export default {
 </script>
 
 <template>
-  <h2>Ajouter un questionnaire</h2>
   <div class="input-group">
     <input placeholder="Entrer le nom du questionnaire"
            type="text"

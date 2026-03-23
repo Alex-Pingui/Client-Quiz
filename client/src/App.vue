@@ -12,23 +12,25 @@ export default {
   },
   methods: {
     supprimerQuestionnaire(args){
-      //TODO: Utiliser l'URI plutot que l'id et utiliser cette URI dans le fetch
-      let questionnaireId=args.id;
-      let response=fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}`, {headers: {"Content-Type": "application/json"}, method: "DELETE"});
+      let questionnaireUri=args.uri;
+      let response=fetch(questionnaireUri, {headers: {"Content-Type": "application/json"}, method: "DELETE"});
       response.then(
           result => {
-            if(result.status === 200) this.questionnaires.splice(this.questionnaires.findIndex(questionnaire => questionnaire.id===questionnaireId), 1);
+            if(result.status === 200) this.questionnaires.splice(this.questionnaires.findIndex(questionnaire => questionnaire.uri===questionnaireUri), 1);
           }
       ).catch(error => console.log(error));
     },
     modifierQuestionnaire(args){
-      let questionnaireId=args.id;
+      let questionnaireUri=args.uri;
       let nomQuestionnaire=args.nomQuestionnaire;
       let sent={"name":nomQuestionnaire};
-      let response=fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}`, {headers: {"Content-Type": "application/json"}, method: "PUT", body: JSON.stringify(sent)});
+      let response=fetch(questionnaireUri, {headers: {"Content-Type": "application/json"}, method: "PUT", body: JSON.stringify(sent)});
       response.then(
+          result => result.json()
+      ).then(
           result => {
-            if(result.status === 200) this.questionnaires.find(questionnaire => questionnaire.id===questionnaireId).name=nomQuestionnaire;
+            let resultQuestionnaire=result["questionnaire"];
+            this.questionnaires.find(questionnaire => questionnaire.uri===resultQuestionnaire.uri).name=resultQuestionnaire.name;
           }
       ).catch(error => console.log(error));
     },
@@ -59,15 +61,17 @@ export default {
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <h1>{{title}}</h1>
+  <h2>Questionnaires</h2>
+  <ul>
+    <Questionnaire :questionnaire="questionnaire"
+                   v-for="questionnaire in questionnaires"
+                   @supprimerQuestionnaire="supprimerQuestionnaire"
+                   @modifierQuestionnaire="modifierQuestionnaire"
+    />
+  </ul>
+  <h2>Ajouter un questionnaire</h2>
+  <AjoutQuestionnaire @ajouterQuestionnaire="ajouterQuestionnaire"/>
 </template>
 
 <style scoped>
