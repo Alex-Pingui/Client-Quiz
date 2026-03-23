@@ -1,35 +1,31 @@
 <script>
 export default {
-  data(){
+  data() {
     return {
       nomQuestionnaire: ""
     };
   },
-  methods:{
-    ajouterQuestionnaire(){
-      this.$emit('ajouterQuestionnaire',{nomQuestionnaire: this.nomQuestionnaire});
+  methods: {
+    submit() {
+      if (!this.nomQuestionnaire) return;
+      this.$emit("ajouterQuestionnaire", {
+        nomQuestionnaire: this.nomQuestionnaire
+      });
+      this.nomQuestionnaire = "";
     }
-  }
+  },
+  emits: ["ajouterQuestionnaire"]
 };
 </script>
 
 <template>
-  <div class="input-group">
-    <input placeholder="Entrer le nom du questionnaire"
-           type="text"
-           class="form-control"
-           v-model="nomQuestionnaire"
-    >
-    <span class="input-group-btn">
-      <button class="btn btn-default"
-              type="button"
-              @click="ajouterQuestionnaire"
-      >
-        Ajouter
-      </button>
-    </span>
+  <div class="input-group mt-2">
+    <input
+      v-model="nomQuestionnaire"
+      placeholder="Nom du questionnaire"
+      type="text"
+      class="form-control"
+    />
+    <button @click="submit" class="btn btn-primary">Ajouter</button>
   </div>
 </template>
-
-<style scoped>
-</style>
