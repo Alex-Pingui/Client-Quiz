@@ -101,15 +101,7 @@ export default {
           <CreationQuestion v-for="question in questionnaire.questions" :key="question.num_question"
             :question="question" @getAll="fetchData" @remove="fetchData" @modify="fetchData" />
         </div>
-        <div class="input-group mt-2">
-          <input v-model="newQuestion.enonce" placeholder="Énoncé" type="text" class="form-control">
-          <input v-model="newQuestion.reponse" placeholder="Réponse" type="text" class="form-control">
-          <input v-model="newQuestion.proposition_a" placeholder="Proposition A (optionnel)" type="text"
-            class="form-control">
-          <input v-model="newQuestion.proposition_b" placeholder="Proposition B (optionnel)" type="text"
-            class="form-control">
-          <button @click="submitQuestion(questionnaire.id)" class="btn btn-primary">Ajouter question</button>
-        </div>
+
       </li>
     </ol>
   </div>
