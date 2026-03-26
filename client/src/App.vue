@@ -42,7 +42,6 @@ export default {
         })
         .catch(error => console.log(error));
     },
-
     modifierQuestionnaire(args) {
       const questionnaireUri = args.uri;
       const nomQuestionnaire = args.nomQuestionnaire;
@@ -68,85 +67,61 @@ export default {
       const q = args.question;
 
       const sent = {
-        enonce: q.enonce.trim(),      // Trim pour éviter les espaces
+        enonce: q.enonce.trim(),
         reponse: q.reponse.trim()
       };
+      if (q.proposition_a?.trim()) sent.proposition_a = q.proposition_a.trim();
+      if (q.proposition_b?.trim()) sent.proposition_b = q.proposition_b.trim();
 
-      // ✅ NE PAS envoyer les props vides
-      if (q.proposition_a && q.proposition_a.trim()) {
-        sent.proposition_a = q.proposition_a.trim();
-      }
-      if (q.proposition_b && q.proposition_b.trim()) {
-        sent.proposition_b = q.proposition_b.trim();
-      }
-
-      console.log("📤 Données nettoyées :", sent);
-
-      // ✅ DEBUG : affiche EXACTEMENT ce qui est envoyé
-      console.log("📤 Données envoyées à l'API :", JSON.stringify(sent, null, 2));
-
-      fetch(
-        `http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions`,
-        {
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-          body: JSON.stringify(sent)
-        }
-      )
+      fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions`, {
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        body: JSON.stringify(sent)
+      })
+        .then(result => result.json())
         .then(result => {
-          console.log("📥 Status HTTP :", result.status, result.statusText);
-          return result.json();
-        })
-        .then(result => {
-          console.log("API retourne :", result);
+          const newQuestion = result.question;
 
-          let newQuestion = result.question || result;
+          // ✅ UTILISE LA NOUVELLE FONCTION
+          const questionnaire = this.getQuestionnaireById(questionnaireId);
 
-          // ✅ CORRECTION : ton API n'a pas "error" ni "id", mais "uri" !
-          if (newQuestion.error) {
-            console.error("❌ Erreur API :", newQuestion);
-            return;
-          }
-
-          const questionnaire = this.questionnaires.find(qq => qq.id == questionnaireId);
           if (questionnaire) {
             if (!questionnaire.questions) questionnaire.questions = [];
             questionnaire.questions.push(newQuestion);
+            console.log("✅ Ajouté à questionnaire:", questionnaire.name);
+          } else {
+            console.error("❌ Questionnaire toujours pas trouvé");
           }
         })
-        .catch(error => console.error("Erreur fetch :", error));
+        .catch(console.error);
     },
     supprimerQuestion(args) {
       let questionUri = args.uri;
-
-      // ✅ CORRECTION : Si l'URI est relatif, ajouter le domaine
       if (questionUri.startsWith('/quiz')) {
         questionUri = 'http://localhost:5000' + questionUri;
       }
 
-      console.log("🗑️ Supprimant :", questionUri);
-
-      fetch(questionUri, {
-        headers: { "Content-Type": "application/json" },
-        method: "DELETE"
-      })
+      fetch(questionUri, { method: "DELETE", headers: { "Content-Type": "application/json" } })
         .then(result => {
-          console.log("📥 DELETE status :", result.status);
-          if (result.ok) {  // 200 ou 204
+          if (result.ok) {
+            // Recherche par URI relatif original
             this.questionnaires.forEach(questionnaire => {
-              if (!questionnaire.questions) return;
-              const index = questionnaire.questions.findIndex(
-                question => question.uri === args.uri  // Utilise l'ancien uri relatif
-              );
-              if (index !== -1) {
-                questionnaire.questions.splice(index, 1);
+              if (questionnaire.questions) {
+                const index = questionnaire.questions.findIndex(q => q.uri === args.uri);
+                if (index !== -1) questionnaire.questions.splice(index, 1);
               }
             });
-          } else {
-            console.error(`❌ Échec suppression ${result.status} :`, questionUri);
           }
         })
-        .catch(error => console.error("Erreur DELETE :", error));
+        .catch(console.error);
+    },
+    getQuestionnaireById(id) {
+      return this.questionnaires.find(q => {
+        // Extrait ID depuis URI : /questionnaires/123 → 123
+        const uriMatch = q.uri ? q.uri.match(/questionnaires\/(\d+)/) : null;
+        const uriId = uriMatch ? parseInt(uriMatch[1]) : null;
+        return uriId === id;
+      })
     }
   },
   mounted() {
@@ -156,6 +131,7 @@ export default {
     })
       .then(result => result.json())
       .then(result => {
+        console.log("RAW API response:", result);
         this.questionnaires = result["questionnaires"];
       })
       .catch(error => console.log(error));

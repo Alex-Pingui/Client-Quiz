@@ -63,7 +63,8 @@ export default {
         <!-- DEBUG : affiche l'ID disponible -->
         <p>DEBUG ID questionnaire : {{ questionnaire.id }} | {{ questionnaire.uri }}</p>
 
-        <AfficherQuestions :questions="questionnaire.questions" :questionnaire-id="getQuestionnaireId()"
+        <AfficherQuestions :key="showQuestionsLocal + (questionnaire.questions?.length || 0)"
+          :questions="questionnaire.questions" :questionnaire-id="getQuestionnaireId()"
           @supprimerQuestion="(question) => $emit('supprimerQuestion', { uri: question.uri })"
           @ajouterQuestion="(data) => $emit('ajouterQuestion', data)" />
       </div>
