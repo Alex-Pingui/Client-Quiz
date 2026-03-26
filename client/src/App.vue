@@ -82,15 +82,11 @@ export default {
         .then(result => {
           const newQuestion = result.question;
 
-          // ✅ UTILISE LA NOUVELLE FONCTION
           const questionnaire = this.getQuestionnaireById(questionnaireId);
 
           if (questionnaire) {
             if (!questionnaire.questions) questionnaire.questions = [];
             questionnaire.questions.push(newQuestion);
-            console.log("✅ Ajouté à questionnaire:", questionnaire.name);
-          } else {
-            console.error("❌ Questionnaire toujours pas trouvé");
           }
         })
         .catch(console.error);
@@ -104,7 +100,6 @@ export default {
       fetch(questionUri, { method: "DELETE", headers: { "Content-Type": "application/json" } })
         .then(result => {
           if (result.ok) {
-            // Recherche par URI relatif original
             this.questionnaires.forEach(questionnaire => {
               if (questionnaire.questions) {
                 const index = questionnaire.questions.findIndex(q => q.uri === args.uri);
@@ -117,7 +112,6 @@ export default {
     },
     getQuestionnaireById(id) {
       return this.questionnaires.find(q => {
-        // Extrait ID depuis URI : /questionnaires/123 → 123
         const uriMatch = q.uri ? q.uri.match(/questionnaires\/(\d+)/) : null;
         const uriId = uriMatch ? parseInt(uriMatch[1]) : null;
         return uriId === id;
@@ -131,7 +125,6 @@ export default {
     })
       .then(result => result.json())
       .then(result => {
-        console.log("RAW API response:", result);
         this.questionnaires = result["questionnaires"];
       })
       .catch(error => console.log(error));

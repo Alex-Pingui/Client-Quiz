@@ -36,7 +36,6 @@ export default {
       this.$emit("supprimerQuestion", { uri: question.uri });
     },
     getQuestionnaireId() {
-      // Extrait l'ID depuis l'URI : /quiz/api/v1.0/questionnaires/123 → 123
       if (this.questionnaire.id) return this.questionnaire.id;
       const match = this.questionnaire.uri.match(/questionnaires\/(\d+)/);
       return match ? parseInt(match[1]) : null;
@@ -60,9 +59,6 @@ export default {
       </span>
 
       <div v-if="showQuestionsLocal">
-        <!-- DEBUG : affiche l'ID disponible -->
-        <p>DEBUG ID questionnaire : {{ questionnaire.id }} | {{ questionnaire.uri }}</p>
-
         <AfficherQuestions :key="showQuestionsLocal + (questionnaire.questions?.length || 0)"
           :questions="questionnaire.questions" :questionnaire-id="getQuestionnaireId()"
           @supprimerQuestion="(question) => $emit('supprimerQuestion', { uri: question.uri })"
