@@ -77,26 +77,25 @@ export default {
       };
 
       fetch(
-        `questionnaireUri/${questionnaireId}/questions`,
+        `http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions`,
         {
           headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify(sent)
         }
       )
-        .then(result => result.json())
-        .then(result => {
+        .then((result) => result.json())
+        .then((result) => {
           const questionnaire = this.questionnaires.find(
-            questionnaire => questionnaire.id === questionnaireId
+            (q) => q.id === questionnaireId
           );
           if (questionnaire) {
             if (!questionnaire.questions) questionnaire.questions = [];
             questionnaire.questions.push(result["question"]);
           }
         })
-        .catch(error => console.log(error));
+        .catch(console.log);
     },
-
     supprimerQuestion(args) {
       const questionUri = args.uri;
 
@@ -139,15 +138,9 @@ export default {
 
   <h2>Questionnaires</h2>
   <ul>
-    <Questionnaire
-      v-for="questionnaire in questionnaires"
-      :key="questionnaire.id"
-      :questionnaire="questionnaire"
-      @supprimerQuestionnaire="supprimerQuestionnaire"
-      @modifierQuestionnaire="modifierQuestionnaire"
-      @ajouterQuestion="ajouterQuestion"
-      @supprimerQuestion="supprimerQuestion"
-    />
+    <Questionnaire v-for="questionnaire in questionnaires" :key="questionnaire.id" :questionnaire="questionnaire"
+      @supprimerQuestionnaire="supprimerQuestionnaire" @modifierQuestionnaire="modifierQuestionnaire"
+      @ajouterQuestion="ajouterQuestion" @supprimerQuestion="supprimerQuestion" />
   </ul>
 
   <h2>Ajouter un questionnaire</h2>
