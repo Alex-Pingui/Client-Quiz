@@ -1,35 +1,27 @@
 <script>
-import CreationQuestion from "./CreationQuestions.vue";
+import CreationQuestions from "./CreationQuestions.vue";
+import AfficherQuestions from "./AfficherQuestions.vue";
 
 export default {
-  components: { CreationQuestion },
+  components: { CreationQuestions, AfficherQuestions },
   props: {
-    questionnaire: Object
+    questionnaire: Object,
   },
   data() {
-    return {
-      nomQuestionnaire: "",
-      showQuestions: false
-    };
+    return { showQuestionsLocal: false };
   },
   methods: {
     fetchQuestions() {
-      if (this.showQuestions) {
-        this.showQuestions = false;
+      if (this.showQuestionsLocal) {
+        this.showQuestionsLocal = false;
         return;
       }
-      fetch(this.questionnaire.uri + "/questions", {
-        headers: { "Content-Type": "application/json" },
-        method: "GET"
-      }
-      )
-        .then(result => result.json())
-        .then(result => {
-          this.questionnaire.questions = result["questions"];
-          this.showQuestions = !this.showQuestions;
-          console.log(this.questionnaire);
-        })
-        .catch(error => console.log(error));
+      fetch(this.questionnaire.uri + "/questions")
+        .then(res => res.json())
+        .then(res => {
+          this.questionnaire.questions = res.questions || [];
+          this.showQuestionsLocal = true;
+        });
     },
     supprimerQuestionnaire() {
       this.$emit("supprimerQuestionnaire", { uri: this.questionnaire.uri });
@@ -42,6 +34,18 @@ export default {
     },
     supprimerQuestion(question) {
       this.$emit("supprimerQuestion", { uri: question.uri });
+    },
+    ajouterQuestion(data) {
+      fetch(data.uri + "/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data.question)
+      })
+        .then(res => res.json())
+        .then(newQuestion => {
+          // On ajoute la nouvelle question à la liste locale pour l'affichage immédiat
+          this.questionnaire.questions.push(newQuestion);
+        });
     }
   },
   emits: [
@@ -54,26 +58,26 @@ export default {
 </script>
 
 <template>
-  <li>
-    <span>
-      {{ questionnaire.name }}
-      <button class="btn btn-default" type="button" @click="fetchQuestions">
-        Questions
-      </button>
-    </span>
-
-    <div class="input-group">
-      <input placeholder="Modifier le nom du questionnaire" type="text" class="form-control"
-        v-model="nomQuestionnaire" />
-      <span class="input-group-btn">
-        <button class="btn btn-default" type="button" @click="modifierQuestionnaire">
-          Modifier
-        </button>
+  <ul>
+    <li>
+      <span>
+        {{ questionnaire.name }}
+        <button class="btn btn-default" @click="fetchQuestions">Questions</button>
       </span>
-    </div>
 
-    <input type="button" class="btn btn-danger" value="Supprimer" @click="supprimerQuestionnaire" />
+      <div v-if="showQuestionsLocal">
+        <AfficherQuestions 
+          :questions="questionnaire.questions" 
+          :questionnaire-id="questionnaire.id"
+          @supprimer-question="(question) => $emit('supprimerQuestion', question)"
+          @ajouter-question="(data) => $emit('ajouterQuestion', data)"
+        />
+      </div>
 
-
-  </li>
+      <button class="btn btn-danger" @click="$emit('supprimerQuestionnaire', { uri: questionnaire.uri })">
+        Supprimer
+      </button>
+    </li>
+  </ul>
 </template>
+

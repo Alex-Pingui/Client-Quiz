@@ -1,23 +1,19 @@
 <script>
+import CreationQuestions from "./CreationQuestions.vue";
+
 export default {
-    data() {
-        return {
-            showQuestions: false
-        };
-    },
+    name: 'AfficherQuestions',
+    components: { CreationQuestions },
     props: {
-        questions: Array
+        questions: Array,
+        questionnaireUri: String
     },
-    methods: {
-        getURIQuestionnaire() {
-            return this.questionnaire.uri;
-        },
-    }
+    emits: ['supprimerQuestion', 'ajouterQuestion']
 }
 </script>
 
 <template>
-    <div v-if="showQuestions" class="mt-3">
+    <div>
         <h4>Questions</h4>
 
         <ul v-if="
@@ -26,7 +22,7 @@ export default {
         ">
             <li v-for="question in questions">
                 {{ question.enonce }}
-                <button class="btn btn-danger btn-sm" type="button" @click="supprimerQuestion(question)">
+                <button class="btn btn-danger btn-sm" type="button" @click="($emit('supprimerQuestion', question))">
                     Supprimer
                 </button>
             </li>
@@ -34,6 +30,6 @@ export default {
 
         <p v-else>Aucune question pour l’instant.</p>
 
-        <CreationQuestion :questionnaire-id="questionnaire.id" @add="addQuestion" />
+        <CreationQuestions :questionnaire-uri="questionnaireUri" @add="(question) => $emit('ajouterQuestion', question)" />
     </div>
 </template>
