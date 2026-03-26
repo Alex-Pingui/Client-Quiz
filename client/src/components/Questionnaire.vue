@@ -35,17 +35,11 @@ export default {
     supprimerQuestion(question) {
       this.$emit("supprimerQuestion", { uri: question.uri });
     },
-    ajouterQuestion(data) {
-      fetch(data.uri + "/questions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data.question)
-      })
-        .then(res => res.json())
-        .then(newQuestion => {
-          // On ajoute la nouvelle question à la liste locale pour l'affichage immédiat
-          this.questionnaire.questions.push(newQuestion);
-        });
+    getQuestionnaireId() {
+      // Extrait l'ID depuis l'URI : /quiz/api/v1.0/questionnaires/123 → 123
+      if (this.questionnaire.id) return this.questionnaire.id;
+      const match = this.questionnaire.uri.match(/questionnaires\/(\d+)/);
+      return match ? parseInt(match[1]) : null;
     }
   },
   emits: [
@@ -66,12 +60,12 @@ export default {
       </span>
 
       <div v-if="showQuestionsLocal">
-        <AfficherQuestions 
-          :questions="questionnaire.questions" 
-          :questionnaire-id="questionnaire.id"
-          @supprimer-question="(question) => $emit('supprimerQuestion', question)"
-          @ajouter-question="(data) => $emit('ajouterQuestion', data)"
-        />
+        <!-- DEBUG : affiche l'ID disponible -->
+        <p>DEBUG ID questionnaire : {{ questionnaire.id }} | {{ questionnaire.uri }}</p>
+
+        <AfficherQuestions :questions="questionnaire.questions" :questionnaire-id="getQuestionnaireId()"
+          @supprimerQuestion="(question) => $emit('supprimerQuestion', { uri: question.uri })"
+          @ajouterQuestion="(data) => $emit('ajouterQuestion', data)" />
       </div>
 
       <button class="btn btn-danger" @click="$emit('supprimerQuestionnaire', { uri: questionnaire.uri })">
@@ -80,4 +74,3 @@ export default {
     </li>
   </ul>
 </template>
-

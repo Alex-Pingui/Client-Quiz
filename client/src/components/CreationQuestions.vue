@@ -15,6 +15,7 @@ export default {
   },
   methods: {
     submitQuestion() {
+      console.log("DEBUG CreationQuestions : this.questionnaireId =", this.questionnaireId); 
       this.$emit("ajouterQuestion", {
         id: this.questionnaireId,
         question: { ...this.newQuestion }

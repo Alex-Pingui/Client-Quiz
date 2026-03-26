@@ -11,6 +11,21 @@ export default {
     };
   },
   methods: {
+    ajouterQuestionnaire(args) {
+      const nomQuestionnaire = args.nomQuestionnaire;
+      const sent = { name: nomQuestionnaire };
+
+      fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        body: JSON.stringify(sent)
+      })
+        .then(result => result.json())
+        .then(result => {
+          this.questionnaires.push(result["questionnaire"]);
+        })
+        .catch(error => console.log(error));
+    },
     supprimerQuestionnaire(args) {
       const questionnaireUri = args.uri;
       fetch(questionnaireUri, {
@@ -48,33 +63,27 @@ export default {
         })
         .catch(error => console.log(error));
     },
-
-    ajouterQuestionnaire(args) {
-      const nomQuestionnaire = args.nomQuestionnaire;
-      const sent = { name: nomQuestionnaire };
-
-      fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-        body: JSON.stringify(sent)
-      })
-        .then(result => result.json())
-        .then(result => {
-          this.questionnaires.push(result["questionnaire"]);
-        })
-        .catch(error => console.log(error));
-    },
-
     ajouterQuestion(args) {
       const questionnaireId = args.id;
       const q = args.question;
 
       const sent = {
-        enonce: q.enonce,
-        reponse: q.reponse,
-        proposition_a: q.proposition_a || null,
-        proposition_b: q.proposition_b || null
+        enonce: q.enonce.trim(),      // Trim pour éviter les espaces
+        reponse: q.reponse.trim()
       };
+
+      // ✅ NE PAS envoyer les props vides
+      if (q.proposition_a && q.proposition_a.trim()) {
+        sent.proposition_a = q.proposition_a.trim();
+      }
+      if (q.proposition_b && q.proposition_b.trim()) {
+        sent.proposition_b = q.proposition_b.trim();
+      }
+
+      console.log("📤 Données nettoyées :", sent);
+
+      // ✅ DEBUG : affiche EXACTEMENT ce qui est envoyé
+      console.log("📤 Données envoyées à l'API :", JSON.stringify(sent, null, 2));
 
       fetch(
         `http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions`,
@@ -84,39 +93,60 @@ export default {
           body: JSON.stringify(sent)
         }
       )
-        .then((result) => result.json())
-        .then((result) => {
-          const questionnaire = this.questionnaires.find(
-            (q) => q.id === questionnaireId
-          );
+        .then(result => {
+          console.log("📥 Status HTTP :", result.status, result.statusText);
+          return result.json();
+        })
+        .then(result => {
+          console.log("API retourne :", result);
+
+          let newQuestion = result.question || result;
+
+          // ✅ CORRECTION : ton API n'a pas "error" ni "id", mais "uri" !
+          if (newQuestion.error) {
+            console.error("❌ Erreur API :", newQuestion);
+            return;
+          }
+
+          const questionnaire = this.questionnaires.find(qq => qq.id == questionnaireId);
           if (questionnaire) {
             if (!questionnaire.questions) questionnaire.questions = [];
-            questionnaire.questions.push(result["question"]);
+            questionnaire.questions.push(newQuestion);
           }
         })
-        .catch(console.log);
+        .catch(error => console.error("Erreur fetch :", error));
     },
     supprimerQuestion(args) {
-      const questionUri = args.uri;
+      let questionUri = args.uri;
+
+      // ✅ CORRECTION : Si l'URI est relatif, ajouter le domaine
+      if (questionUri.startsWith('/quiz')) {
+        questionUri = 'http://localhost:5000' + questionUri;
+      }
+
+      console.log("🗑️ Supprimant :", questionUri);
 
       fetch(questionUri, {
         headers: { "Content-Type": "application/json" },
         method: "DELETE"
       })
         .then(result => {
-          if (result.status === 200) {
+          console.log("📥 DELETE status :", result.status);
+          if (result.ok) {  // 200 ou 204
             this.questionnaires.forEach(questionnaire => {
               if (!questionnaire.questions) return;
               const index = questionnaire.questions.findIndex(
-                question => question.uri === questionUri
+                question => question.uri === args.uri  // Utilise l'ancien uri relatif
               );
-              if (index !== -1) questionnaire.questions.splice(index, 1);
+              if (index !== -1) {
+                questionnaire.questions.splice(index, 1);
+              }
             });
           } else {
-            console.log(`Failed to delete question at ${questionUri}`);
+            console.error(`❌ Échec suppression ${result.status} :`, questionUri);
           }
         })
-        .catch(error => console.log(error));
+        .catch(error => console.error("Erreur DELETE :", error));
     }
   },
   mounted() {
