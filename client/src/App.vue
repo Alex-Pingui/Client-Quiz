@@ -1,13 +1,16 @@
 <script>
-import Questionnaire from "./components/Questionnaire.vue";
-import AjoutQuestionnaire from "./components/AjoutQuestionnaire.vue";
+import EditionQuestionnaire from "./components/edition/EditionQuestionnaire.vue";
+import AjoutQuestionnaire from "./components/edition/AjoutQuestionnaire.vue";
+import RepondreQuestionnaire from "./components/repondre/RepondreQuestionnaire.vue";
+import RepondreQuestions from "./components/repondre/RepondreQuestions.vue";
 
 export default {
-  components: {AjoutQuestionnaire, Questionnaire},
+  components: {RepondreQuestions, RepondreQuestionnaire, AjoutQuestionnaire, EditionQuestionnaire},
   data(){
     return {
       title: "Quiz",
-      questionnaires: []
+      questionnaires: [],
+      questions: []
     };
   },
   methods: {
@@ -45,6 +48,14 @@ export default {
             this.questionnaires.push(result["questionnaire"]);
           }
       ).catch(error => console.log(error));
+    },
+    getQuestions(args){
+      let response=fetch(`${args.uri}/questions`, {headers: {"Content-Type": "application/json"}, method: "GET"});
+      response.then(
+          result => result.json()
+      ).then(
+          result => this.questions=result["questions"]
+      ).catch(error => console.log(error));
     }
   },
   mounted() {
@@ -64,14 +75,12 @@ export default {
   <h1>{{title}}</h1>
   <h2>Questionnaires</h2>
   <ul>
-    <Questionnaire :questionnaire="questionnaire"
-                   v-for="questionnaire in questionnaires"
-                   @supprimerQuestionnaire="supprimerQuestionnaire"
-                   @modifierQuestionnaire="modifierQuestionnaire"
+    <RepondreQuestionnaire :questionnaire="questionnaire"
+                           v-for="questionnaire in questionnaires"
+                           @getQuestions="getQuestions"
     />
   </ul>
-  <h2>Ajouter un questionnaire</h2>
-  <AjoutQuestionnaire @ajouterQuestionnaire="ajouterQuestionnaire"/>
+  <RepondreQuestions v-if="questions.length>0" :questions="questions"/>
 </template>
 
 <style scoped>
