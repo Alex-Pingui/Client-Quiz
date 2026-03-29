@@ -8,7 +8,7 @@ def make_public_questionnaire(questionnaire):
     return questionnaire
 
 def make_public_question(question):
-    question.uri=url_for("get_question_view", id_questionnaire=question.id_questionnaire, num_question=question.num_question)
+    question.uri=url_for("get_question_view", id_questionnaire=question.id_questionnaire, num_question=question.num_question, _external=True)
     return question
 
 @app.route("/quiz/api/v1.0/questionnaires", methods=["GET"])

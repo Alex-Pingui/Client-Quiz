@@ -1,7 +1,7 @@
 <script>
 export default {
   props: {
-    questionnaireId: Number,
+    questionnaireUri: String
   },
   data() {
     return {
@@ -14,11 +14,8 @@ export default {
     };
   },
   methods: {
-    submitQuestion() {
-      this.$emit("ajouterQuestion", {
-        id: this.questionnaireId,
-        question: { ...this.newQuestion }
-      });
+    ajouterQuestion() {
+      this.$emit("ajouterQuestion", {newQuestion: this.newQuestion, questionnaireUri: this.questionnaireUri});
       this.newQuestion = { enonce: "", reponse: "", proposition_a: "", proposition_b: "" };
     }
   },
@@ -34,9 +31,9 @@ export default {
       <input v-model="newQuestion.reponse" placeholder="Réponse" type="text" class="form-control">
     </div>
     <div class="input-group mb-2">
-      <input v-model="newQuestion.proposition_a" placeholder="Prop A" type="text" class="form-control">
-      <input v-model="newQuestion.proposition_b" placeholder="Prop B" type="text" class="form-control">
-      <button @click="submitQuestion" class="btn btn-primary">Ajouter</button>
+      <input v-model="newQuestion.proposition_a" placeholder="Proposition A (question fermée)" type="text" class="form-control">
+      <input v-model="newQuestion.proposition_b" placeholder="Proposition B (question fermée)" type="text" class="form-control">
+      <button @click="ajouterQuestion" class="btn btn-primary">Ajouter</button>
     </div>
   </div>
 </template>

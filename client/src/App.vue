@@ -1,9 +1,9 @@
 <script>
-import Questionnaire from "./components/Questionnaire.vue";
-import AjoutQuestionnaire from "./components/AjoutQuestionnaire.vue";
+import EditionQuestionnaire from "./components/edition/EditionQuestionnaire.vue";
+import AjoutQuestionnaire from "./components/edition/AjoutQuestionnaire.vue";
 
 export default {
-  components: { AjoutQuestionnaire, Questionnaire },
+  components: { AjoutQuestionnaire, Questionnaire: EditionQuestionnaire },
   data() {
     return {
       title: "Quiz",
@@ -11,123 +11,92 @@ export default {
     };
   },
   methods: {
-    ajouterQuestionnaire(args) {
-      const nomQuestionnaire = args.nomQuestionnaire;
-      const sent = { name: nomQuestionnaire };
-
-      fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-        body: JSON.stringify(sent)
-      })
-        .then(result => result.json())
-        .then(result => {
-          this.questionnaires.push(result["questionnaire"]);
-        })
-        .catch(error => console.log(error));
+    ajouterQuestionnaire(args){
+      let nomQuestionnaire=args.nomQuestionnaire;
+      let sent={"name":nomQuestionnaire.trim()};
+      let response=fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {headers: {"Content-Type": "application/json"}, method: "POST", body: JSON.stringify(sent)});
+      response.then(
+          result => result.json()
+      ).then(
+          result => {
+            this.questionnaires.push(result["questionnaire"]);
+          }
+      ).catch(error => console.log(error));
+    },
+    modifierQuestionnaire(args){
+      let questionnaireUri=args.uri;
+      let nomQuestionnaire=args.nomQuestionnaire;
+      let sent={"name":nomQuestionnaire.trim()};
+      let response=fetch(questionnaireUri, {headers: {"Content-Type": "application/json"}, method: "PUT", body: JSON.stringify(sent)});
+      response.then(
+          result => result.json()
+      ).then(
+          result => {
+            let resultQuestionnaire=result["questionnaire"];
+            this.questionnaires.find(questionnaire => questionnaire.uri===resultQuestionnaire.uri).name=resultQuestionnaire.name;
+          }
+      ).catch(error => console.log(error));
     },
     supprimerQuestionnaire(args) {
-      const questionnaireUri = args.uri;
-      fetch(questionnaireUri, {
-        headers: { "Content-Type": "application/json" },
-        method: "DELETE"
-      })
-        .then(result => {
-          if (result.status === 200) {
-            const index = this.questionnaires.findIndex(
-              q => q.uri === questionnaireUri
-            );
-            if (index !== -1) this.questionnaires.splice(index, 1);
+      let questionnaireUri=args.uri;
+      let response=fetch(questionnaireUri, {headers: {"Content-Type": "application/json"}, method:"DELETE"});
+      response.then(
+          result => {
+            if(result.ok) this.questionnaires.splice(this.questionnaires.findIndex(questionnaire => questionnaire.uri===questionnaireUri), 1);
           }
-        })
-        .catch(error => console.log(error));
+      ).catch(error => console.log(error));
     },
-    modifierQuestionnaire(args) {
-      const questionnaireUri = args.uri;
-      const nomQuestionnaire = args.nomQuestionnaire;
-      const sent = { name: nomQuestionnaire };
+    ajouterQuestion(args){
+      let questionnaireUri = args.questionnaireUri;
+      let question = args.newQuestion;
 
-      fetch(questionnaireUri, {
-        headers: { "Content-Type": "application/json" },
-        method: "PUT",
-        body: JSON.stringify(sent)
-      })
-        .then(result => result.json())
-        .then(result => {
-          const resultQuestionnaire = result["questionnaire"];
-          const q = this.questionnaires.find(
-            questionnaire => questionnaire.uri === resultQuestionnaire.uri
-          );
-          if (q) q.name = resultQuestionnaire.name;
-        })
-        .catch(error => console.log(error));
-    },
-    ajouterQuestion(args) {
-      const questionnaireId = args.id;
-      const q = args.question;
-
-      const sent = {
-        enonce: q.enonce.trim(),
-        reponse: q.reponse.trim()
+      let sent = {
+        "enonce": question.enonce.trim(),
+        "reponse": question.reponse.trim()
       };
-      if (q.proposition_a?.trim()) sent.proposition_a = q.proposition_a.trim();
-      if (q.proposition_b?.trim()) sent.proposition_b = q.proposition_b.trim();
+      if (question.proposition_a.length>0) sent["proposition_a"] = question.proposition_a.trim();
+      if (question.proposition_b.length>0) sent["proposition_b"] = question.proposition_b.trim();
 
-      fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions`, {
+      let response=fetch(`${questionnaireUri}/questions`, {
         headers: { "Content-Type": "application/json" },
         method: "POST",
-        body: JSON.stringify(sent)
-      })
-        .then(result => result.json())
-        .then(result => {
-          const newQuestion = result.question;
+        body: JSON.stringify(sent)});
+      console.log(response);
 
-          const questionnaire = this.getQuestionnaireById(questionnaireId);
+      response.then(
+          result => result.json()
+      ).then(result => {
+            let newQuestion = result["question"];
+            let questionnaire=this.questionnaires.find(questionnaire => questionnaire.uri===questionnaireUri);
 
-          if (questionnaire) {
-            if (!questionnaire.questions) questionnaire.questions = [];
+            if(!questionnaire.questions) questionnaire.questions = [];
             questionnaire.questions.push(newQuestion);
           }
-        })
-        .catch(console.error);
+      ).catch(console.error);
     },
     supprimerQuestion(args) {
       let questionUri = args.uri;
-      if (questionUri.startsWith('/quiz')) {
-        questionUri = 'http://localhost:5000' + questionUri;
-      }
+      let questionnaireUri = args.questionnaireUri;
 
-      fetch(questionUri, { method: "DELETE", headers: { "Content-Type": "application/json" } })
-        .then(result => {
-          if (result.ok) {
-            this.questionnaires.forEach(questionnaire => {
-              if (questionnaire.questions) {
-                const index = questionnaire.questions.findIndex(q => q.uri === args.uri);
-                if (index !== -1) questionnaire.questions.splice(index, 1);
-              }
-            });
+      let response=fetch(questionUri, { method: "DELETE", headers: { "Content-Type": "application/json" } });
+      response.then(
+          result => {
+            if(result.ok){
+              let questionnaire=this.questionnaires.find(questionnaire => questionnaire.uri===questionnaireUri);
+              if(questionnaire.questions) questionnaire.questions.splice(questionnaire.questions.findIndex(question => question.uri===questionUri), 1);
+            }
           }
-        })
-        .catch(console.error);
-    },
-    getQuestionnaireById(id) {
-      return this.questionnaires.find(q => {
-        const uriMatch = q.uri ? q.uri.match(/questionnaires\/(\d+)/) : null;
-        const uriId = uriMatch ? parseInt(uriMatch[1]) : null;
-        return uriId === id;
-      })
+      ).catch(error => console.log(error));
     }
   },
   mounted() {
-    fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {
-      headers: { "Content-Type": "application/json" },
-      method: "GET"
-    })
-      .then(result => result.json())
-      .then(result => {
+    let response=fetch("http://localhost:5000/quiz/api/v1.0/questionnaires", {headers: { "Content-Type": "application/json" }, method: "GET"});
+    response.then(
+        result => result.json()
+    ).then(result => {
         this.questionnaires = result["questionnaires"];
-      })
-      .catch(error => console.log(error));
+      }
+    ).catch(error => console.log(error));
   }
 };
 </script>
@@ -137,9 +106,13 @@ export default {
 
   <h2>Questionnaires</h2>
   <ul>
-    <Questionnaire v-for="questionnaire in questionnaires" :key="questionnaire.id" :questionnaire="questionnaire"
-      @supprimerQuestionnaire="supprimerQuestionnaire" @modifierQuestionnaire="modifierQuestionnaire"
-      @ajouterQuestion="ajouterQuestion" @supprimerQuestion="supprimerQuestion" />
+    <Questionnaire v-for="questionnaire in questionnaires"
+                   :questionnaire="questionnaire"
+                   @supprimerQuestionnaire="supprimerQuestionnaire"
+                   @modifierQuestionnaire="modifierQuestionnaire"
+                   @ajouterQuestion="ajouterQuestion"
+                   @supprimerQuestion="supprimerQuestion"
+    />
   </ul>
 
   <h2>Ajouter un questionnaire</h2>
@@ -147,18 +120,4 @@ export default {
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 </style>
