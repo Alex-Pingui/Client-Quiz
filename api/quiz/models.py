@@ -17,6 +17,7 @@ def get_questionnaire(id_questionnaire):
 
 def remove_questionnaire(id_questionnaire):
     questionnaire=db.session.query(Questionnaire).filter_by(id_questionnaire=id_questionnaire).first()
+    db.session.query(Question).filter_by(id_questionnaire=id_questionnaire).delete()
     db.session.delete(questionnaire)
     db.session.commit()
 
