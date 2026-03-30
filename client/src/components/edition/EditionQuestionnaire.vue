@@ -1,11 +1,15 @@
 <script>
+import EditionQuestions from "./EditionQuestions.vue";
+
 export default {
+  components: {EditionQuestions},
   props: {
     questionnaire: Object
   },
   data(){
     return {
-      nomQuestionnaire: ""
+      nomQuestionnaire: "",
+      showQuestions: false
     };
   },
   methods:{
@@ -14,13 +18,34 @@ export default {
     },
     modifierQuestionnaire(){
       this.$emit("modifierQuestionnaire", {uri: this.questionnaire.uri, nomQuestionnaire: this.nomQuestionnaire});
+    },
+    getQuestions() {
+      if (this.showQuestions) {
+        this.showQuestions = !this.showQuestions;
+        return;
+      }
+
+      let response=fetch(`${this.questionnaire.uri}/questions`, {headers: {"Content-Type": "application/json"}, method: "GET"});
+      response.then(
+          result => result.json()
+      ).then(
+          result => {
+            this.questionnaire.questions = result["questions"];
+            this.showQuestions = true;
+          }
+      ).catch(error => console.log(error));
+    },
+    ajouterQuestion(args){
+      this.$emit("ajouterQuestion", args);
+    },
+    supprimerQuestion(args){
+      this.$emit("supprimerQuestion", args);
     }
   }
 };
 </script>
 
 <template>
-  <ul>
     <li>
       <span>
         {{ questionnaire.name }}
