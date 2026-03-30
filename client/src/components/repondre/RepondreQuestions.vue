@@ -8,17 +8,24 @@ export default {
   },
   data(){
     return {
-      questionsQuiz: this.questions,
       quizValide: false,
       scoreQuiz: 0,
-      scoreMax: this.questions.length,
-      reponsesSelectionnee: {}
+      scoreMax: 0,
+      reponsesSelectionnees: {}
     }
   },
   methods: {
     verifierReponses(){
       this.quizValide = true;
-      console.log(this.reponsesSelectionnee);
+      this.scoreMax=this.questions.length;
+      for(let question of this.questions){
+        this.scoreQuiz+=question.reponse===this.reponsesSelectionnees[question.uri]?1:0;
+      }
+    },
+    resetQuestionnaire(){
+      this.quizValide=false;
+      this.scoreQuiz=0;
+      this.reponsesSelectionnees={};
     }
   },
 
@@ -30,14 +37,15 @@ export default {
   <ul>
     <li v-for="question in questions">
       <h3>{{question.enonce}}</h3>
-      <input type="text" v-if="question.proposition_a==null" v-model="reponsesSelectionnee">
+      <input type="text" v-if="question.proposition_a==null" v-model="reponsesSelectionnees[question.uri]">
       <ul v-else>
-        <li><input v-bind:name="question.enonce" type="radio" v-bind:value="reponsesSelectionnee[question.enonce]=question.proposition_a">{{question.proposition_a}}</li>
-        <li><input v-bind:name="question.enonce" type="radio" v-bind:value="reponsesSelectionnee[question.enonce]=question.proposition_b">{{question.proposition_b}}</li>
+        <li><input :name="question.enonce" type="radio" :value="question.proposition_a" v-model="reponsesSelectionnees[question.uri]">{{question.proposition_a}}</li>
+        <li><input :name="question.enonce" type="radio" :value="question.proposition_b" v-model="reponsesSelectionnees[question.uri]">{{question.proposition_b}}</li>
       </ul>
     </li>
   </ul>
-  <button @click="verifierReponses">Valider</button>
+  <button v-if="!quizValide" @click="verifierReponses">Valider</button>
+  <button v-if="quizValide" @click="resetQuestionnaire">Refaire le questionnaire</button>
   <BilanQuiz v-if="quizValide" :scoreObtenu="scoreQuiz" :scoreMax="scoreMax"/>
 </template>
 
