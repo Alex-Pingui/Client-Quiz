@@ -1,13 +1,16 @@
 <script>
 import EditionQuestionnaire from "./components/edition/EditionQuestionnaire.vue";
 import AjoutQuestionnaire from "./components/edition/AjoutQuestionnaire.vue";
+import RepondreQuestionnaire from "./components/repondre/RepondreQuestionnaire.vue";
+import RepondreQuestions from "./components/repondre/RepondreQuestions.vue";
 
 export default {
-  components: { AjoutQuestionnaire, Questionnaire: EditionQuestionnaire },
-  data() {
+  components: {RepondreQuestions, RepondreQuestionnaire, AjoutQuestionnaire, EditionQuestionnaire},
+  data(){
     return {
       title: "Quiz",
-      questionnaires: []
+      questionnaires: [],
+      questions: []
     };
   },
   methods: {
@@ -87,6 +90,14 @@ export default {
             }
           }
       ).catch(error => console.log(error));
+    },
+    getQuestions(args){
+      let response=fetch(`${args.uri}/questions`, {headers: {"Content-Type": "application/json"}, method: "GET"});
+      response.then(
+          result => result.json()
+      ).then(
+          result => this.questions=result["questions"]
+      ).catch(error => console.log(error));
     }
   },
   mounted() {
@@ -106,6 +117,12 @@ export default {
 
   <h2>Questionnaires</h2>
   <ul>
+    <RepondreQuestionnaire :questionnaire="questionnaire"
+                           v-for="questionnaire in questionnaires"
+                           @getQuestions="getQuestions"
+    />
+  </ul>
+  <RepondreQuestions v-if="questions.length>0" :questions="questions"/>
     <Questionnaire v-for="questionnaire in questionnaires"
                    :questionnaire="questionnaire"
                    @supprimerQuestionnaire="supprimerQuestionnaire"
