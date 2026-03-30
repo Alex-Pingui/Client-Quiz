@@ -20,18 +20,29 @@ export default {
 </script>
 
 <template>
-  <li>
-    <span>
-      {{questionnaire.name}}
-      <button class="btn btn-default">Questions</button>
-    </span>
-    <div class="input-group">
-      <input placeholder="Modifier le nom du questionnaire"
-             type="text"
-             class="form-control"
-             v-model="nomQuestionnaire"
-      >
-      <span class="input-group-btn">
+  <ul>
+    <li>
+      <span>
+        {{ questionnaire.name }}
+        <button class="btn btn-default" @click="getQuestions">Questions</button>
+      </span>
+
+      <div v-if="showQuestions">
+        <EditionQuestions :questions="questionnaire.questions"
+                          :questionnaireUri="questionnaire.uri"
+                          @supprimerQuestion="supprimerQuestion"
+                          @ajouterQuestion="ajouterQuestion"
+        />
+      </div>
+
+      <div class="input-group">
+        <h4>Modifier le questionnaire</h4>
+        <input placeholder="Modifier le nom du questionnaire"
+               type="text"
+               class="form-control"
+               v-model="nomQuestionnaire"
+        >
+        <span class="input-group-btn">
       <button class="btn btn-default"
               type="button"
               @click="modifierQuestionnaire"
