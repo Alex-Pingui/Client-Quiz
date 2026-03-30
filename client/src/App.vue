@@ -123,7 +123,7 @@ export default {
     />
   </ul>
   <RepondreQuestions v-if="questions.length>0" :questions="questions"/>
-  <ul>
+  <!--<ul>
     <EditionQuestionnaire v-for="questionnaire in questionnaires"
                    :questionnaire="questionnaire"
                    @supprimerQuestionnaire="supprimerQuestionnaire"
@@ -134,7 +134,7 @@ export default {
   </ul>
 
   <h2>Ajouter un questionnaire</h2>
-  <AjoutQuestionnaire @ajouterQuestionnaire="ajouterQuestionnaire" />
+  <AjoutQuestionnaire @ajouterQuestionnaire="ajouterQuestionnaire" />-->
 </template>
 
 <style scoped>
