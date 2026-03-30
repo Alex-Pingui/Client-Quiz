@@ -1,57 +1,21 @@
 <script>
-import AjoutQuestion from "./AjoutQuestion.vue";
-import EditionQuestions from "./EditionQuestions.vue";
-
 export default {
-  components: { EditionQuestions },
   props: {
-    questionnaire: Object,
+    questionnaire: Object
   },
-  data() {
+  data(){
     return {
-      nomQuestionnaire: "",
-      showQuestions: false
+      nomQuestionnaire: ""
     };
   },
-  methods: {
-    supprimerQuestionnaire() {
-      this.$emit("supprimerQuestionnaire", { uri: this.questionnaire.uri });
+  methods:{
+    supprimerQuestionnaire(){
+      this.$emit("supprimerQuestionnaire", {uri: this.questionnaire.uri});
     },
-    modifierQuestionnaire() {
-      this.$emit("modifierQuestionnaire", {
-        uri: this.questionnaire.uri,
-        nomQuestionnaire: this.nomQuestionnaire
-      });
-    },
-    getQuestions() {
-      if (this.showQuestions) {
-        this.showQuestions = !this.showQuestions;
-        return;
-      }
-
-      let response=fetch(`${this.questionnaire.uri}/questions`, {headers: {"Content-Type": "application/json"}, method: "GET"});
-      response.then(
-          result => result.json()
-      ).then(
-          result => {
-            this.questionnaire.questions = result["questions"];
-            this.showQuestions = true;
-          }
-      ).catch(error => console.log(error));
-    },
-    ajouterQuestion(args){
-      this.$emit("ajouterQuestion", args);
-    },
-    supprimerQuestion(args){
-      this.$emit("supprimerQuestion", args);
+    modifierQuestionnaire(){
+      this.$emit("modifierQuestionnaire", {uri: this.questionnaire.uri, nomQuestionnaire: this.nomQuestionnaire});
     }
-  },
-  emits: [
-      "supprimerQuestionnaire",
-      "modifierQuestionnaire",
-      "ajouterQuestion",
-      "supprimerQuestion",
-  ]
+  }
 };
 </script>
 
@@ -86,10 +50,15 @@ export default {
         Modifier
       </button>
     </span>
-      </div>
-      <button class="btn btn-danger" @click="$emit('supprimerQuestionnaire', { uri: questionnaire.uri })">
-        Supprimer
-      </button>
-    </li>
-  </ul>
+    </div>
+    <input type="button"
+           class="btn btn-danger"
+           value="Supprimer"
+           @click="supprimerQuestionnaire"
+    >
+  </li>
 </template>
+
+<style scoped>
+
+</style>
