@@ -11,7 +11,8 @@ export default {
       quizValide: false,
       scoreQuiz: 0,
       scoreMax: 0,
-      reponsesSelectionnees: {}
+      reponsesSelectionnees: {},
+      questionsBilan: []
     }
   },
   methods: {
@@ -19,13 +20,22 @@ export default {
       this.quizValide = true;
       this.scoreMax=this.questions.length;
       for(let question of this.questions){
-        this.scoreQuiz+=question.reponse===this.reponsesSelectionnees[question.uri]?1:0;
+        let reponseEntree=this.reponsesSelectionnees[question.uri];
+        let estCorrect=question.reponse===reponseEntree;
+        this.scoreQuiz+=estCorrect?1:0;
+        this.questionsBilan.push({
+          "enonce": question.enonce,
+          "reponse": reponseEntree,
+          "reponse_correct": question.reponse,
+          "correct": estCorrect
+        });
       }
     },
     resetQuestionnaire(){
       this.quizValide=false;
       this.scoreQuiz=0;
       this.reponsesSelectionnees={};
+      this.questionsBilan=[];
     }
   },
 
@@ -46,7 +56,7 @@ export default {
   </ul>
   <button v-if="!quizValide" @click="verifierReponses">Valider</button>
   <button v-if="quizValide" @click="resetQuestionnaire">Refaire le questionnaire</button>
-  <BilanQuiz v-if="quizValide" :scoreObtenu="scoreQuiz" :scoreMax="scoreMax"/>
+  <BilanQuiz v-if="quizValide" :scoreObtenu="scoreQuiz" :scoreMax="scoreMax" :questions="questionsBilan"/>
 </template>
 
 <style scoped>
