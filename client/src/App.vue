@@ -113,28 +113,13 @@ export default {
 </script>
 
 <template>
-  <h1>{{ title }}</h1>
-
-  <h2>Questionnaires</h2>
-  <ul>
-    <RepondreQuestionnaire :questionnaire="questionnaire"
-                           v-for="questionnaire in questionnaires"
-                           @getQuestions="getQuestions"
-    />
-  </ul>
-  <RepondreQuestions v-if="questions.length>0" :questions="questions"/>
-  <ul>
-    <EditionQuestionnaire v-for="questionnaire in questionnaires"
-                   :questionnaire="questionnaire"
-                   @supprimerQuestionnaire="supprimerQuestionnaire"
-                   @modifierQuestionnaire="modifierQuestionnaire"
-                   @ajouterQuestion="ajouterQuestion"
-                   @supprimerQuestion="supprimerQuestion"
-    />
-  </ul>
-
-  <h2>Ajouter un questionnaire</h2>
-  <AjoutQuestionnaire @ajouterQuestionnaire="ajouterQuestionnaire" />
+  <h1>Quiz</h1>
+  <nav>
+    <RouterLink :to="{ name: 'home' }">Accueil</RouterLink>
+    <RouterLink to="edition">Édition</RouterLink>
+    <RouterLink to="reponse">Répondre</RouterLink>
+  </nav>
+  <RouterView />
 </template>
 
 <style scoped>
