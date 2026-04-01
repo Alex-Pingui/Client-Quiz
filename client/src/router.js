@@ -1,0 +1,38 @@
+import { createMemoryHistory, createRouter } from 'vue-router'
+import HomeView from './components/pages/HomeView.vue'
+import EditionView from './components/pages/EditionView.vue'
+import ReponseView from './components/pages/ReponseView.vue'
+
+const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView
+   },
+  {
+    path: '/edition',
+    name: 'edition',
+    component: EditionView,
+    beforeEnter: (to, from, next) => {
+      const password = window.prompt('Please enter the password:');
+      if (password === 'ping') {
+        next();
+      } else {
+        alert('Incorrect password.');
+        next(false);
+      }
+    }
+   },
+  {
+    path: '/reponse',
+    name: 'reponse',
+    component: ReponseView
+   },
+]
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+})
+
+export default router
