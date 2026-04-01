@@ -7,7 +7,13 @@ export default {
   },
   methods:{
     ajouterQuestionnaire(){
+      if(this.nomQuestionnaire.length===0){
+        alert("Veuillez renseigner un nom de questionnaire pour pouvoir ajouter un nouveau questionnaire");
+        return;
+      }
+
       this.$emit('ajouterQuestionnaire',{nomQuestionnaire: this.nomQuestionnaire});
+      this.nomQuestionnaire="";
     }
   }
 };
