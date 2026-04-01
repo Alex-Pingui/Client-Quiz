@@ -11,7 +11,7 @@ export default {
     <h3>{{question['enonce']}}</h3>
     <p :class="question['correct']?'bonne-reponse':'mauvaise-reponse'">Réponse entrée: {{question['reponse']}}</p>
     <p v-if="question['correct']" class="bonne-reponse">Bonne réponse</p>
-    <p v-else class="mauvaise-reponse">Mauvaise réponse</p>
+    <p v-else class="mauvaise-reponse">Mauvaise réponse. La bonne réponse était: {{question['reponse_correct']}}</p>
   </li>
 </template>
 
