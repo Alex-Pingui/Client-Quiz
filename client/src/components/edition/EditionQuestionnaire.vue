@@ -17,7 +17,13 @@ export default {
       this.$emit("supprimerQuestionnaire", {uri: this.questionnaire.uri});
     },
     modifierQuestionnaire(){
+      if(this.nomQuestionnaire.length===0){
+        alert("Veuillez renseignez un nom de questionnaire pour le modifier");
+        return;
+      }
+
       this.$emit("modifierQuestionnaire", {uri: this.questionnaire.uri, nomQuestionnaire: this.nomQuestionnaire});
+      this.nomQuestionnaire="";
     },
     getQuestions() {
       if (this.showQuestions) {

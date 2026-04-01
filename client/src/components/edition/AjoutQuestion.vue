@@ -15,6 +15,23 @@ export default {
   },
   methods: {
     ajouterQuestion() {
+      if(this.newQuestion.enonce.length===0 && this.newQuestion.reponse.length===0){
+        alert("Veuillez renseigner un énoncé et une réponse à la question");
+        return;
+      }
+      if(this.newQuestion.enonce.length===0){
+        alert("Veuillez renseigner un énoncé à la question");
+        return;
+      }
+      if(this.newQuestion.reponse.length===0){
+        alert("Veuillez renseigner une réponse à la question");
+        return;
+      }
+      if((this.newQuestion.proposition_a.length===0 && this.newQuestion.proposition_b.length>0) || (this.newQuestion.proposition_a.length>0 && this.newQuestion.proposition_b.length===0)){
+        alert(`Vous devez remplir les deux propositions de réponse pour ajouter une question avec proposition de réponse (Actuellement la proposition ${this.newQuestion.proposition_a.length===0?"A":"B"} n'est pas remplie)`);
+        return;
+      }
+
       this.$emit("ajouterQuestion", {newQuestion: this.newQuestion, questionnaireUri: this.questionnaireUri});
       this.newQuestion = { enonce: "", reponse: "", proposition_a: "", proposition_b: "" };
     }
