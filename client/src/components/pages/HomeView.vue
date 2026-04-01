@@ -3,6 +3,5 @@ export default {}
 </script>
 <template>
   <h2>Bienvenue</h2>
-  <RouterLink to="reponse">Répondre à un questionnaire</RouterLink>
-  <RouterLink to="edition">Gérer les questionnaires</RouterLink>
+  <p>Consultez nos questionnaires ou créez-en un nouveau.</p>
 </template>

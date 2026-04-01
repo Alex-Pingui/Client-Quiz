@@ -12,7 +12,16 @@ const routes = [
   {
     path: '/edition',
     name: 'edition',
-    component: EditionView
+    component: EditionView,
+    beforeEnter: (to, from, next) => {
+      const password = window.prompt('Please enter the password:');
+      if (password === 'ping') {
+        next();
+      } else {
+        alert('Incorrect password.');
+        next(false);
+      }
+    }
    },
   {
     path: '/reponse',
